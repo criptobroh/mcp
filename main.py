@@ -9,13 +9,15 @@ app = FastAPI()
 def index():
     return {"status": "Servidor MCP SSE funcionando"}
 
-@app.post("/sse")
+@app.api_route("/sse", methods=["GET", "POST"])
 async def mcp_sse(request: Request):
-    body = await request.json()
-    text_input = body.get("input", {}).get("text", "")
+    if request.method == "GET":
+        text_input = request.query_params.get("text", "sin texto")
+    elif request.method == "POST":
+        body = await request.json()
+        text_input = body.get("input", {}).get("text", "sin texto")
 
     async def event_generator():
-        # Podés reemplazar esto con llamadas reales a OpenAI si querés.
         yield {
             "event": "message",
             "data": json.dumps({"output": {"text": f"Procesando: {text_input}"}})
