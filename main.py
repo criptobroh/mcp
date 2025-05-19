@@ -11,11 +11,11 @@ def index():
 
 @app.api_route("/sse", methods=["GET", "POST"])
 async def mcp_sse(request: Request):
-    if request.method == "GET":
-        text_input = request.query_params.get("text", "sin texto")
-    elif request.method == "POST":
+    if request.method == "POST":
         body = await request.json()
-        text_input = body.get("input", {}).get("text", "sin texto")
+        text_input = body.get("input", {}).get("text", "")
+    else:
+        text_input = "sin texto (GET)"
 
     async def event_generator():
         yield {
