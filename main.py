@@ -11,6 +11,7 @@ def index():
 
 @app.api_route("/sse", methods=["GET", "POST"])
 async def mcp_sse(request: Request):
+    # Obtener el input según el método
     if request.method == "POST":
         body = await request.json()
         text_input = body.get("input", {}).get("text", "")
@@ -18,14 +19,23 @@ async def mcp_sse(request: Request):
         text_input = "sin texto (GET)"
 
     async def event_generator():
+        # Primer mensaje
         yield {
             "event": "message",
             "data": json.dumps({"output": {"text": f"Procesando: {text_input}"}})
         }
         await asyncio.sleep(1)
+
+        # Segundo (y último) mensaje
         yield {
             "event": "message",
             "data": json.dumps({"output": {"text": f"Respuesta final: Recibí '{text_input}'"}})
+        }
+
+        # Indicar cierre
+        yield {
+            "event": "close",
+            "data": "done"
         }
 
     return EventSourceResponse(event_generator())
